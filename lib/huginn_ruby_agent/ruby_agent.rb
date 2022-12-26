@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Agents
   class RubyAgent < Agent
     default_schedule '12h'
@@ -7,12 +9,10 @@ module Agents
     MD
 
     def default_options
-      {
-      }
+      {}
     end
 
-    def validate_options
-    end
+    def validate_options; end
 
     def working?
       # Implement me! Maybe one of these next two lines would be a good fit?
@@ -20,10 +20,10 @@ module Agents
       # received_event_without_error?
     end
 
-#    def check
-#    end
+    #    def check
+    #    end
 
-#    def receive(incoming_events)
-#    end
+    #    def receive(incoming_events)
+    #    end
   end
 end
