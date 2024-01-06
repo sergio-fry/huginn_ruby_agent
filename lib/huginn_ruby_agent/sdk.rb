@@ -8,7 +8,7 @@ module HuginnRubyAgent
     end
 
     def deserialize(serialized_payload)
-      Marshal.load(Base64.urlsafe_decode64(serialized_payload))
+      Marshal.load(Base64.urlsafe_decode64(serialized_payload.strip))
     end
 
     def code
@@ -28,7 +28,7 @@ module HuginnRubyAgent
             end
 
             def deserialize(serialized_payload)
-              Marshal.load(Base64.urlsafe_decode64(serialized_payload))
+              Marshal.load(Base64.urlsafe_decode64(serialized_payload.strip))
             end
 
             def create_event(payload)

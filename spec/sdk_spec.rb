@@ -20,7 +20,7 @@ module HuginnRubyAgent
     it { expect_to_transfer_safe({:action=>:create_event, :payload=>{:message=>"hello"}}) }
 
     context do
-      let(:serialized) { "BAh7BzoLYWN0aW9uOhFjcmVhdGVfZXZlbnQ6DHBheWxvYWR7BjoMbWVzc2FnZUkiCmhlbGxvBjoGRVQ=" }
+      let(:serialized) { "BAh7BzoLYWN0aW9uOhFjcmVhdGVfZXZlbnQ6DHBheWxvYWR7BjoMbWVzc2FnZUkiCmhlbGxvBjoGRVQ=\n" }
       it { expect(sdk.deserialize(serialized)).to eq({:action=>:create_event, :payload=>{:message=>"hello"}}) }
     end
   end
