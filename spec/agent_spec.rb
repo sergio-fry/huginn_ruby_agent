@@ -1,6 +1,6 @@
 require 'huginn_ruby_agent'
 require 'huginn_ruby_agent/agent'
-1
+
 module HuginnRubyAgent
   describe Agent do
     example do
