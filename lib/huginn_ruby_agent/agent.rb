@@ -1,48 +1,10 @@
 require 'open3'
 require 'json'
+require 'huginn_ruby_agent/sdk'
 
 module HuginnRubyAgent
-  class SDK
-    def code
-      <<~CODE
-        require 'json'
-        require 'base64'
-
-        module Huginn
-          class API
-            def create_event(payload)
-              puts(
-                {
-                  action: :create_event,
-                  payload: payload
-                }.to_json
-              )
-            end
-
-            def log(message)
-              puts(
-                {
-                  action: :log,
-                  payload: message
-                }.to_json
-              )
-            end
-
-            def error(message)
-              puts(
-                {
-                  action: :error,
-                  payload: message
-                }.to_json
-              )
-            end
-          end
-        end
-      CODE
-    end
-  end
   class Agent
-    attr_reader :events
+    attr_reader :events, :errors
 
     def initialize(code:)
       @code = code
@@ -75,8 +37,7 @@ module HuginnRubyAgent
             end
           end
 
-          # TODO log errors
-          # error err.read
+          log_errors(err)
         end
       end
     end
@@ -91,6 +52,14 @@ module HuginnRubyAgent
 
     def error(message)
       @errors << message
+    end
+
+    private
+
+    def log_errors(err)
+      err.read.lines.each do |line|
+        error line.strip
+      end
     end
   end
 end
