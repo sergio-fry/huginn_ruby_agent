@@ -17,7 +17,8 @@ module HuginnRubyAgent
     def check
       Bundler.with_original_env do
         Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          input.write SDK.new.code
+          sdk = SDK.new
+          input.write sdk.code
           input.write @code
           input.write <<~CODE
 
@@ -26,7 +27,7 @@ module HuginnRubyAgent
           CODE
           input.close
 
-          output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
+          output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
             case data[:action]
             when 'create_event'
               create_event(data[:payload])
@@ -45,7 +46,8 @@ module HuginnRubyAgent
     def receive(events)
       Bundler.with_original_env do
         Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          input.write SDK.new.code
+          sdk = SDK.new
+          input.write sdk.code
           input.write @code
           input.write <<~CODE
 
@@ -61,7 +63,7 @@ module HuginnRubyAgent
           CODE
           input.close
 
-          output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
+          output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
             case data[:action]
             when 'create_event'
               create_event(data[:payload])
