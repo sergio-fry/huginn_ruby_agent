@@ -15,68 +15,11 @@ module HuginnRubyAgent
     end
 
     def check
-      Bundler.with_original_env do
-        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          sdk = SDK.new
-          input.write sdk.code
-          input.write @code
-          input.write <<~CODE
-
-          Agent.new(Huginn::API.new).check
-
-          CODE
-          input.close
-
-          output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
-            case data[:action]
-            when :create_event
-              create_event(data[:payload])
-            when :log
-              log data[:payload]
-            when :error
-              error data[:payload]
-            end
-          end
-
-          log_errors(err)
-        end
-      end
+      execute ".check"
     end
 
     def receive(events)
-      Bundler.with_original_env do
-        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          sdk = SDK.new
-          input.write sdk.code
-          input.write @code
-          input.write <<~CODE
-
-          Agent.new(Huginn::API.new).receive(
-            JSON.parse(
-              Base64.decode64(
-                "#{Base64.encode64(events.to_json)}"
-              ),
-              symbolize_names: true
-            )
-          )
-
-          CODE
-          input.close
-
-          output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
-            case data[:action]
-            when :create_event
-              create_event(data[:payload])
-            when :log
-              log data[:payload]
-            when :error
-              error data[:payload]
-            end
-          end
-
-          log_errors(err)
-        end
-      end
+      execute ".receive(api.deserialize('#{sdk.serialize(events)}'))"
     end
 
     def create_event(payload)
@@ -91,7 +34,40 @@ module HuginnRubyAgent
       @errors << message
     end
 
+    def sdk
+      @sdk ||= SDK.new
+    end
+
     private
+
+    def execute(command=".check")
+      Bundler.with_original_env do
+        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
+          input.write sdk.code
+          input.write @code
+          input.write <<~CODE
+
+          api = Huginn::API.new
+          Agent.new(api)#{command}
+
+          CODE
+          input.close
+
+          output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
+            case data[:action]
+            when :create_event
+              create_event(data[:payload])
+            when :log
+              log data[:payload]
+            when :error
+              error data[:payload]
+            end
+          end
+
+          log_errors(err)
+        end
+      end
+    end
 
     def log_errors(err)
       err.read.lines.each do |line|
