@@ -1,6 +1,7 @@
 require 'open3'
 require 'json'
 require 'huginn_ruby_agent/sdk'
+require 'base64'
 
 module HuginnRubyAgent
   class Agent
@@ -25,6 +26,40 @@ module HuginnRubyAgent
           CODE
           input.close
 
+          output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
+            case data[:action]
+            when 'create_event'
+              create_event(data[:payload])
+            when 'log'
+              log data[:payload]
+            when 'error'
+              error data[:payload]
+            end
+          end
+
+          log_errors(err)
+        end
+      end
+    end
+
+    def receive(events)
+      Bundler.with_original_env do
+        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
+          input.write SDK.new.code
+          input.write @code
+          input.write <<~CODE
+
+          Agent.new(Huginn::API.new).receive(
+            JSON.parse(
+              Base64.decode64(
+                "#{Base64.encode64(events.to_json)}"
+              ),
+              symbolize_names: true
+            )
+          )
+
+          CODE
+          input.close
 
           output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
             case data[:action]

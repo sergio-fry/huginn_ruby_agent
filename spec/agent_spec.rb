@@ -44,5 +44,29 @@ module HuginnRubyAgent
         expect(agent.errors).not_to be_empty
       end
     end
+
+    describe '#receive' do
+      example 'it produces event' do
+        code = <<~CODE
+        class Agent
+          def initialize(api)
+            @api = api
+          end
+
+          def receive(events)
+            events.each do |event|
+              @api.create_event({ number: event[:number] + 1 })
+            end
+          end
+        end
+        CODE
+
+        agent = described_class.new(code: code)
+        agent.receive([{ number: 1 }])
+
+        expect(agent.events.size).to eq 1
+        expect(agent.events[0]).to eq(number: 2)
+      end
+    end
   end
 end
