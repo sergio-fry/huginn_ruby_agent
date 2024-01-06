@@ -14,6 +14,7 @@ module Agents
 
     default_schedule "never"
 
+    # TODO: remove redundant
     gem_dependency_check { defined?(MiniRacer) }
 
     description <<-MD
@@ -23,19 +24,19 @@ module Agents
 
       You can implement `Agent.check` and `Agent.receive` as you see fit.  The following methods will be available on Agent:
 
-      * `createEvent(payload)`
-      * `incomingEvents()` (the returned event objects will each have a `payload` property)
-      * `memory()`
-      * `memory(key)`
-      * `memory(keyToSet, valueToSet)`
-      * `setMemory(object)` (replaces the Agent's memory with the provided object)
-      * `deleteKey(key)` (deletes a key from memory and returns the value)
-      * `credential(name)`
-      * `credential(name, valueToSet)`
-      * `options()`
-      * `options(key)`
-      * `log(message)`
-      * `error(message)`
+      * `@api.create_event(payload)`
+      * `@api.incoming_vents()` (the returned event objects will each have a `payload` property) # TODO
+      * `@api.memory()` # TODO
+      * `@api.memory(key)` # TODO
+      * `@api.memory(keyToSet, valueToSet)` # TODO
+      * `@api.set_memory(object)` (replaces the Agent's memory with the provided object) # TODO
+      * `@api.delete_key(key)` (deletes a key from memory and returns the value) # TODO
+      * `@api.credential(name)` # TODO
+      * `@api.credential(name, valueToSet)` # TODO
+      * `@api.options()` # TODO
+      * `@api.options(key)` # TODO
+      * `@api.log(message)`
+      * `@api.error(message)`
     MD
 
     form_configurable :code, type: :text, ace: true

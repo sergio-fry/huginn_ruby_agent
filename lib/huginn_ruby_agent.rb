@@ -2,5 +2,7 @@
 
 require 'huginn_agent'
 
-# HuginnAgent.load 'huginn_ruby_agent/concerns/my_agent_concern'
-HuginnAgent.register 'huginn_ruby_agent/ruby_agent'
+module HuginnRubyAgent
+end
+
+HuginnAgent.register 'agents/ruby_agent'
