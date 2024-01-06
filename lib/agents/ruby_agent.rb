@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require 'date'
-require 'cgi'
-require 'tempfile'
-require 'base64'
-
-# https://stackoverflow.com/questions/23884526/is-there-a-safe-way-to-eval-in-ruby-or-a-better-way-to-do-this
 module Agents
   class RubyAgent < Agent
     include FormConfigurable
@@ -61,15 +55,16 @@ module Agents
       true
     end
 
+
     def check
-      log_errors do
-        execute_check
+      runngin_agent do |agent|
+        agent.check
       end
     end
 
     def receive(events)
-      log_errors do
-        execute_receive(events)
+      runngin_agent do |agent|
+        agent.receive events
       end
     end
 
@@ -110,130 +105,23 @@ module Agents
 
     private
 
-    def execute_check
-      Bundler.with_original_env do
-        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          input.write sdk_code
-          input.write code
-          input.write <<~CODE
+    def running_agent
+      agent = HuginnRubyAgent::Agent.new(code)
+      yield agent
 
-          Agent.new(Huginn::API.new).check
-
-          CODE
-          input.close
-
-
-          output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
-            case data[:action]
-            when 'create_event'
-              create_event(payload: data[:payload])
-            when 'log'
-              log data[:payload]
-            when 'error'
-              error data[:payload]
-            end
-          end
-
-          errors = err.read
-
-          error err.read
-          log "thread #{thread.value}"
-        end
+      agent.events.each do |event|
+        create_event(payload: event)
       end
-    end
-
-    def execute_receive(events)
-      Bundler.with_original_env do
-        Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
-          input.write sdk_code
-          input.write code
-          input.write <<~CODE
-
-          api = Huginn::API.new
-          begin
-            Agent.new(api).receive(
-              JSON.parse(
-                Base64.decode64(
-                  "#{Base64.encode64(events.to_json)}"
-                ),
-                symbolize_names: true
-              )
-            )
-          rescue StandardError => ex
-            api.error ex
-          end
-
-          CODE
-          input.close
-
-
-          output.readlines.map { |line| JSON.parse(line, symbolize_names: true) }.each do |data|
-            case data[:action]
-            when 'create_event'
-              create_event(payload: data[:payload])
-            when 'log'
-              log data[:payload]
-            when 'error'
-              error data[:payload]
-            end
-          end
-
-          errors = err.read
-
-          error err.read
-          log "thread #{thread.value}"
-        end
+      agent.logs.each do |message|
+        log message
+      end
+      agent.errors.each do |message|
+        error message
       end
     end
 
     def code
       interpolated['code']
-    end
-
-    def sdk_code
-      <<~CODE
-        require 'json'
-        require 'base64'
-
-        module Huginn
-          class API
-            def create_event(payload)
-              puts(
-                {
-                  action: :create_event,
-                  payload: payload
-                }.to_json
-              )
-            end
-
-            def log(message)
-              puts(
-                {
-                  action: :log,
-                  payload: message
-                }.to_json
-              )
-            end
-
-            def error(message)
-              puts(
-                {
-                  action: :error,
-                  payload: message
-                }.to_json
-              )
-            end
-          end
-        end
-      CODE
-    end
-
-    def log_errors
-      begin
-        yield
-      rescue StandardError => e
-        error "Runtime error: #{e.message}"
-      end
     end
   end
 end

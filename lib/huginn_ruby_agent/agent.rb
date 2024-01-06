@@ -40,6 +40,7 @@ module HuginnRubyAgent
 
     private
 
+    # https://stackoverflow.com/questions/23884526/is-there-a-safe-way-to-eval-in-ruby-or-a-better-way-to-do-this
     def execute(command=".check")
       Bundler.with_original_env do
         Open3.popen3("ruby", chdir: '/') do |input, output, err, thread|
@@ -67,6 +68,8 @@ module HuginnRubyAgent
           log_errors(err)
         end
       end
+    rescue StandardError => e
+      error "Runtime error: #{e.message}"
     end
 
     def log_errors(err)
