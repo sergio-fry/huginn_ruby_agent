@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'huginn_ruby_agent'
+require 'huginn_ruby_agent/agent'
 
 module Agents
   class RubyAgent < Agent
