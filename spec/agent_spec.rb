@@ -90,5 +90,28 @@ module HuginnRubyAgent
         expect(agent.logs[0]).to eq "hello"
       end
     end
+
+    describe '#credentials' do
+      example 'it gives access to creds' do
+        code = <<~CODE
+        class Agent
+          def initialize(api)
+            @api = api
+          end
+
+          def check
+            @api.create_event token_from_credential: @api.credential(:token)
+          end
+        end
+        CODE
+
+        agent = described_class.new(code: code, credentials: { token: 'abc123' })
+        agent.check
+
+        puts agent.errors
+        puts agent.logs
+        expect(agent.events[0]).to eq({ token_from_credential: 'abc123' })
+      end
+    end
   end
 end

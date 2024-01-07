@@ -19,7 +19,14 @@ module HuginnRubyAgent
         module Huginn
           class API
             def initialize(serialized_credentials: nil)
-              @credentials = serialized_credentials.nil? ? {} : deserialize(serialized_credentials) 
+              @serialized_credentials = serialized_credentials
+            end
+
+            def credentials
+              @credentials ||=
+                begin
+                  @serialized_credentials.nil? ? {} : deserialize(@serialized_credentials) 
+                end
             end
 
             def serialize(payload)
@@ -28,6 +35,10 @@ module HuginnRubyAgent
 
             def deserialize(serialized_payload)
               JSON.parse Base64.urlsafe_decode64(serialized_payload.strip), symbolize_names: true
+            end
+
+            def credential(name)
+              credentials[name.to_sym]
             end
 
             def create_event(payload)

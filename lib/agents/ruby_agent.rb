@@ -27,7 +27,7 @@ module Agents
       * `@api.memory(keyToSet, valueToSet)` # TODO
       * `@api.set_memory(object)` (replaces the Agent's memory with the provided object) # TODO
       * `@api.delete_key(key)` (deletes a key from memory and returns the value) # TODO
-      * `@api.credential(name)` # TODO
+      * `@api.credential(name)`
       * `@api.credential(name, valueToSet)` # TODO
       * `@api.options()` # TODO
       * `@api.options(key)` # TODO
