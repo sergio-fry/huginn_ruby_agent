@@ -28,7 +28,7 @@ module Agents
       * `@api.set_memory(object)` (replaces the Agent's memory with the provided object) # TODO
       * `@api.delete_key(key)` (deletes a key from memory and returns the value) # TODO
       * `@api.credential(name)`
-      * `@api.credential(name, valueToSet)` # TODO
+      * `@api.set_credential(name, valueToSet)`
       * `@api.options()` # TODO
       * `@api.options(key)` # TODO
       * `@api.log(message)`
@@ -120,6 +120,9 @@ module Agents
       agent.errors.each do |message|
         error message
       end
+      agent.changed_credentials.each do |name, value|
+        set_credential(name, value)
+      end
     end
 
     def code
@@ -128,6 +131,12 @@ module Agents
 
     def credentials_hash
       Hash[user.user_credentials.map { |c| [c.credential_name, c.credential_value] }]
+    end
+
+    def set_credential(name, value)
+      c = user.user_credentials.find_or_initialize_by(credential_name: name)
+      c.credential_value = value
+      c.save!
     end
   end
 end

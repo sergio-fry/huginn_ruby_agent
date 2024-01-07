@@ -5,7 +5,7 @@ require 'base64'
 
 module HuginnRubyAgent
   class Agent
-    attr_reader :events, :errors, :logs
+    attr_reader :events, :errors, :logs, :changed_credentials
 
     def initialize(code:, credentials: {})
       @code = code
@@ -13,6 +13,7 @@ module HuginnRubyAgent
       @logs = []
       @errors = []
       @credentials = credentials
+      @changed_credentials = {}
     end
 
     def check
@@ -63,6 +64,8 @@ module HuginnRubyAgent
               log data[:payload]
             when 'error'
               error data[:payload]
+            when 'set_credential'
+              @changed_credentials[data[:payload][:name].to_sym] = data[:payload][:value]
             end
           end
 

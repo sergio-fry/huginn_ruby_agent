@@ -18,8 +18,11 @@ module HuginnRubyAgent
 
         module Huginn
           class API
+            attr_reader :changed_credentials
+
             def initialize(serialized_credentials: nil)
               @serialized_credentials = serialized_credentials
+              @changed_credentials = {}
             end
 
             def credentials
@@ -39,6 +42,13 @@ module HuginnRubyAgent
 
             def credential(name)
               credentials[name.to_sym]
+            end
+
+            def set_credential(name, value)
+              credentials[name.to_sym] = value
+              changed_credentials[name.to_sym] = value
+
+              puts serialize({ action: :set_credential, payload: { name: name, value: value } })
             end
 
             def create_event(payload)

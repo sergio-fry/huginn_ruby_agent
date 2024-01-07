@@ -108,9 +108,27 @@ module HuginnRubyAgent
         agent = described_class.new(code: code, credentials: { token: 'abc123' })
         agent.check
 
-        puts agent.errors
-        puts agent.logs
         expect(agent.events[0]).to eq({ token_from_credential: 'abc123' })
+      end
+
+      example 'it updates creds' do
+        code = <<~CODE
+        class Agent
+          def initialize(api)
+            @api = api
+          end
+
+          def check
+            @api.set_credential(:token, 'new_val')
+          end
+        end
+        CODE
+
+        agent = described_class.new(code: code, credentials: { token: 'abc123' })
+
+        expect(agent.changed_credentials).to be_empty
+        agent.check
+        expect(agent.changed_credentials).to eq({ token: 'new_val' })
       end
     end
   end
