@@ -1,8 +1,44 @@
 # RubyAgent
 
-Welcome to your new agent gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/huginn_ruby_agent`. To experiment with that code, run `bin/console` for an interactive prompt.
+Write your next huginn agent with ruby language.
 
-TODO: Delete this and the text above, and describe your gem
+```ruby
+class Agent
+  def initialize(api)
+    @api = api
+  end
+
+  def check
+    @api.create_event({ message: 'I made an event!' })
+  end
+
+  def receive(incoming_events)
+    incoming_events.each do |event|
+      @api.create_event({ message: 'new event', event_was: event[:payload] })
+    end
+  end
+end
+```
+
+Also you can add custom gems:
+
+```ruby
+require "bundler/inline"
+
+gemfile do
+  source "https://rubygems.org"
+
+  # gem "mechanize"
+end
+
+class Agent
+  def initialize(api)
+    @api = api
+  end
+
+  #...
+end
+```
 
 ## Installation
 
