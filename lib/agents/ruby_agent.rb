@@ -57,13 +57,13 @@ module Agents
 
 
     def check
-      runngin_agent do |agent|
+      running_agent do |agent|
         agent.check
       end
     end
 
     def receive(events)
-      runngin_agent do |agent|
+      running_agent do |agent|
         agent.receive events
       end
     end
