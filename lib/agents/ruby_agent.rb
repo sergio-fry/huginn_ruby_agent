@@ -108,7 +108,7 @@ module Agents
     private
 
     def running_agent
-      agent = HuginnRubyAgent::Agent.new(code)
+      agent = HuginnRubyAgent::Agent.new(code:)
       yield agent
 
       agent.events.each do |event|
