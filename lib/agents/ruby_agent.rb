@@ -108,7 +108,7 @@ module Agents
     private
 
     def running_agent
-      agent = HuginnRubyAgent::Agent.new(code:)
+      agent = HuginnRubyAgent::Agent.new(code:, credentials: credentials_hash)
       yield agent
 
       agent.events.each do |event|
@@ -124,6 +124,10 @@ module Agents
 
     def code
       interpolated['code']
+    end
+
+    def credentials_hash
+      Hash[user.user_credentials.map { |c| [c.credential_name, c.credential_value] }]
     end
   end
 end

@@ -7,11 +7,12 @@ module HuginnRubyAgent
   class Agent
     attr_reader :events, :errors, :logs
 
-    def initialize(code:)
+    def initialize(code:, credentials: {})
       @code = code
       @events = []
       @logs = []
       @errors = []
+      @credentials = credentials
     end
 
     def check
@@ -48,7 +49,7 @@ module HuginnRubyAgent
           input.write @code
           input.write <<~CODE
 
-          api = Huginn::API.new
+          api = Huginn::API.new(serialized_credentials: '#{sdk.serialize(@credentials)}')
           Agent.new(api)#{command}
 
           CODE
