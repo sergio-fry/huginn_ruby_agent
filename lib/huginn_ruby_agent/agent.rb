@@ -5,7 +5,7 @@ require 'base64'
 
 module HuginnRubyAgent
   class Agent
-    attr_reader :events, :errors
+    attr_reader :events, :errors, :logs
 
     def initialize(code:)
       @code = code

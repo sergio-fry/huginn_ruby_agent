@@ -68,5 +68,27 @@ module HuginnRubyAgent
         expect(agent.events[0]).to eq(number: 2)
       end
     end
+
+    describe '#logs' do
+      example 'it produces log' do
+        code = <<~CODE
+        class Agent
+          def initialize(api)
+            @api = api
+          end
+
+          def check
+            @api.log "hello"
+          end
+        end
+        CODE
+
+        agent = described_class.new(code: code)
+        agent.check
+
+        expect(agent.logs.size).to eq 1
+        expect(agent.logs[0]).to eq "hello"
+      end
+    end
   end
 end
