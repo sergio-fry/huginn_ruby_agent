@@ -4,11 +4,11 @@ require 'base64'
 module HuginnRubyAgent
   class SDK
     def serialize(payload)
-      Base64.urlsafe_encode64(Marshal.dump(payload))
+      Base64.urlsafe_encode64(payload.to_json)
     end
 
     def deserialize(serialized_payload)
-      Marshal.load(Base64.urlsafe_decode64(serialized_payload.strip))
+      JSON.parse Base64.urlsafe_decode64(serialized_payload.strip), symbolize_names: true
     end
 
     def code
@@ -19,11 +19,11 @@ module HuginnRubyAgent
         module Huginn
           class API
             def serialize(payload)
-              Base64.urlsafe_encode64(Marshal.dump(payload))
+              Base64.urlsafe_encode64(payload.to_json)
             end
 
             def deserialize(serialized_payload)
-              Marshal.load(Base64.urlsafe_decode64(serialized_payload.strip))
+              JSON.parse Base64.urlsafe_decode64(serialized_payload.strip), symbolize_names: true
             end
 
             def create_event(payload)

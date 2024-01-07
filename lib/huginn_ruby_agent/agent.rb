@@ -56,11 +56,11 @@ module HuginnRubyAgent
 
           output.readlines.map { |line| sdk.deserialize(line) }.each do |data|
             case data[:action]
-            when :create_event
+            when 'create_event'
               create_event(data[:payload])
-            when :log
+            when 'log'
               log data[:payload]
-            when :error
+            when 'error'
               error data[:payload]
             end
           end
