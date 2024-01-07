@@ -19,11 +19,6 @@ module HuginnRubyAgent
         module Huginn
           class API
             def serialize(payload)
-              File.open('/Users/sergei/agent.txt', 'wb') do |file|
-                file.puts payload.inspect
-                file.puts Marshal.dump(payload)
-                file.puts Base64.urlsafe_encode64(Marshal.dump(payload))
-              end
               Base64.urlsafe_encode64(Marshal.dump(payload))
             end
 
